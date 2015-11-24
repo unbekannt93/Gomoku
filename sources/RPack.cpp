@@ -8,6 +8,12 @@ RPack::RPack(sf::RenderWindow *r) : _render(r)
   _textures[0].loadFromFile("Sources/papillusion.jpg");
   _textures.push_back(sf::Texture());
   _textures[1].loadFromFile("Sources/player.png");
+  _textures.push_back(sf::Texture());
+  _textures[2].loadFromFile("Sources/board.png");
+  _textures.push_back(sf::Texture());
+  _textures[3].loadFromFile("Sources/whiteStone.png");
+  _textures.push_back(sf::Texture());
+  _textures[4].loadFromFile("Sources/blackStone.png");
 }
 
 RPack::~RPack()

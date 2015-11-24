@@ -7,6 +7,8 @@
 #include "Humain.hh"
 #include "Field.hh"
 
+class Engine;
+
 class Game : public Module
 {
 public:

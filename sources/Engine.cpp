@@ -1,15 +1,17 @@
 #include		<iostream>
 #include		"Engine.hh"
 
-Engine::Engine() : _render(sf::VideoMode(1280, 720), "Game"),
+Engine::Engine() : _render(sf::VideoMode(950, 950), "Gomoku"),
 		   _res(&_render),
-		   _cModule(0), _th(&Engine::updater, this)
+		   _cModule(0), _th(&Engine::updater, this),
+		   _useScreen(false)
 {
   sf::Vector2u	size = _render.getSize();
-  _screen.resizeView(size.x, size.y, &_render);
-  _modules[0] = new Module(this, 0, 0);
+  if (_useScreen)
+    _screen.resizeView(size.x, size.y, &_render);
+  _modules[0] = new Game(this, 0, 0);
   _modules[_cModule]->openModule();
-  _th.launch();
+  //_th.launch();
 }
 
 Engine::~Engine()
@@ -22,7 +24,7 @@ Engine::~Engine()
 
 void			Engine::start()
 {
-  _render.setFramerateLimit(60);
+  _render.setFramerateLimit(30);
   while (_render.isOpen())
     {
       while (_render.pollEvent(_event))
@@ -30,18 +32,24 @@ void			Engine::start()
 	  if (_event.type == sf::Event::Closed)
 	    _render.close();
 	  else if (_event.type == sf::Event::MouseMoved)
-	    _modules[_cModule]->setPosition(_screen.getX(_event.mouseMove.x),
-					    _screen.getY(_event.mouseMove.y));
+	    {
+	      if (_useScreen)
+		_modules[_cModule]->setPosition(_screen.getX(_event.mouseMove.x),
+						_screen.getY(_event.mouseMove.y));
+	      else
+		_modules[_cModule]->setPosition(_event.mouseMove.x, _event.mouseMove.y);
+	    }
 	  else if (_event.type == sf::Event::KeyPressed)
 	    {
 	      if (_event.key.code == sf::Keyboard::Escape)
 		_render.close();
 	    }
-	  else if (_event.type == sf::Event::Resized)
-            _screen.resizeView(_event.size.width, _event.size.height, &_render);
+	  else if (_event.type == sf::Event::Resized && _useScreen)
+	    _screen.resizeView(_event.size.width, _event.size.height, &_render);
 	  else
 	    _modules[_cModule]->eventModule();
 	}
+      _modules[_cModule]->updateModule();
       _render.clear();
       _modules[_cModule]->drawModule();
       _render.display();

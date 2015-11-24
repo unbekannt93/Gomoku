@@ -2,12 +2,37 @@
 #define PLAYER_HH_
 
 #include <string>
+#include <SFML/Graphics.hpp>
+#include "Click.hh"
+
+class Field;
+class Intersection;
 
 class Player
 {
 public:
-Player();
-~Player();
+  enum		Brain{
+    SLEEP,
+    THINK,
+    FINISHED,
+    WIN
+  };
+
+public:
+  Player(Field*, sf::Sprite*);
+  ~Player();
+  sf::Sprite	*getPawn();
+  void		drawOn(t_position);
+  virtual void	action(Intersection*) = 0;
+  virtual void	turnBegin();
+  Brain		getBrain() const;
+  bool		haveFinished() const;
+  void		sleep();
+protected:
+  Field		*_field;
+  sf::Sprite	*_pawn;
+  Brain		_brain;
+  int		_stoneKilled;
 };
 
 #endif

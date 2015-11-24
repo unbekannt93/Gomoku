@@ -7,8 +7,9 @@
 class Artificial : public Player
 {
 public:
-Artificial();
-~Artificial();
+  Artificial(Field*, sf::Sprite*);
+  ~Artificial();
+  void		action(Intersection*);
 };
 
 #endif

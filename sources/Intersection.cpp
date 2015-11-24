@@ -3,7 +3,7 @@
 #include "Field.hh"
 
 Intersection::Intersection(int id, Field *f, Engine *e) : _id(id),
-							  _field(f), _engine(e)
+							  _field(f), _engine(e), _owner(0)
 {
   _position.x = _id % 19 * 50;
   _position.y = _id / 19 * 50;
@@ -22,16 +22,15 @@ t_position	Intersection::getPosition() const{
   return (_position);
 }
 
-bool		Intersection::isHover() const{
-  return (_hover);
-}
-
 void		Intersection::draw(){
-  if (_hover)
-    _engine->getRender()->draw(*_hoverPict);
-  _engine->getRender()->draw(*_pict);
+  if (_owner)
+    _owner->drawOn(_position);
 }
 
-void		Intersection::setHover(){
-  _hover = true;
+void		Intersection::setOwner(Player *p){
+  _owner = p;
+}
+
+Player		*Intersection::getOwner(){
+  return (_owner);
 }

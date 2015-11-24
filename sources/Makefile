@@ -14,7 +14,8 @@ SRC	=	Engine.cpp \
 		Game.cpp \
 		Player.cpp \
 		Humain.cpp \
-		Artificial.cpp
+		Artificial.cpp \
+		Patern.cpp
 
 RM	=	rm -rf
 

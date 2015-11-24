@@ -1,14 +1,20 @@
 #include "Field.hh"
+#include "Engine.hh"
 
-Field::Field(Engine *e) : _engine(e)
+Field::Field(Engine *e) : _engine(e), _sizeInter(50)
 {
+  _arbitrator = new Arbitrator(this);
   for (int i = 0; i < 361; i++){
     _field[i] = new Intersection(i, this, _engine);
   }
+  _backGround = _engine->getPack()->getSprite(2);
+  _hover = _engine->getPack()->getSprite(1);
 }
 
 Field::~Field()
 {
+  delete (_hover);
+  delete (_backGround);
   for (int i = 0; i < 361; i++){
     delete (_field[i]);
   }
@@ -19,11 +25,15 @@ void		Field::setMouse(t_position pos){
 }
 
 int		Field::getId(t_position pos) const{
-  return ((pos.x / 50) % 19 + (pos.y / 50) * 19);
+  return ((pos.x / _sizeInter) % 19 + (pos.y / _sizeInter) * 19);
 }
 
 Intersection	*Field::getInter(t_position pos){
   return (getInter(getId(pos)));
+}
+
+Intersection	*Field::getInter(){
+  return (getInter(getId(_mouse)));
 }
 
 Intersection	*Field::getInter(int id){
@@ -41,8 +51,11 @@ void		Field::hover(int id){
 }
 
 void		Field::hover(Intersection *i){
-  if (i)
-    i->setHover();
+  if (!i)
+    return;
+  t_position pos = i->getPosition();
+  _hover->setPosition(pos.x, pos.y);
+  _engine->getRender()->draw(*_hover);
 }
 
 bool		Field::put(t_position pos){
@@ -66,4 +79,12 @@ void		Field::draw(){
   for (int i = 0; i < 361; i++){
     _field[i]->draw();
   }
+}
+
+Engine		*Field::getEngine(){
+  return (_engine);
+}
+
+Arbitrator	*Field::getArbitrator(){
+  return (_arbitrator);
 }

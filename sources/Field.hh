@@ -5,7 +5,8 @@
 #include "Intersection.hh"
 #include "Click.hh"
 #include "Arbitrator.hh"
-#include "Engine.hh"
+
+class Engine;
 
 class Field
 {
@@ -14,6 +15,7 @@ public:
   ~Field();
   void		setMouse(t_position);
   int		getId(t_position) const;
+  Intersection	*getInter();
   Intersection	*getInter(t_position);
   Intersection	*getInter(int);
   void		hover(t_position);
@@ -23,13 +25,18 @@ public:
   bool		put(int);
   bool		put(Intersection*);
   void		draw();
+  Engine	*getEngine();
+  Arbitrator	*getArbitrator();
+
 private:
   Intersection	*_field[361];
   sf::Sprite	*_backGround;
+  sf::Sprite	*_hover;
   t_position	_mouse;
   Intersection	*_lastInter;
-  Arbitrator	*_arbitrator;
   Engine	*_engine;
+  Arbitrator	*_arbitrator;
+  int		_sizeInter;
 };
 
 #endif

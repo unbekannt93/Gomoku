@@ -7,8 +7,9 @@
 class Humain : public Player
 {
 public:
-Humain();
-~Humain();
+  Humain(Field*, sf::Sprite*);
+  ~Humain();
+  void		action(Intersection*);
 };
 
 #endif

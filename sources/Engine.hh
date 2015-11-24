@@ -5,7 +5,7 @@
 # include		<SFML/Graphics.hpp>
 # include		<SFML/Audio.hpp>
 # include		"RPack.hh"
-# include		"Module.hh"
+# include		"Game.hh"
 # include		"Screen.hh"
 
 class Engine
@@ -23,10 +23,11 @@ private:
   sf::RenderWindow	_render;
   sf::Event		_event;
   RPack			_res;
-  Module		*_modules[5];
+  Module		*_modules[2];
   std::size_t		_cModule;
   sf::Thread		_th;
   Screen		_screen;
+  bool			_useScreen;
 };
 
 #endif

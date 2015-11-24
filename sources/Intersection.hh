@@ -2,8 +2,8 @@
 #define INTERSECTION_HH_
 
 #include <string>
-#include <SFML/Graphics.hpp>
 #include "Click.hh"
+#include "Player.hh"
 
 class Field;
 class Engine;
@@ -18,14 +18,15 @@ public:
   bool		isHover() const;
   void		draw();
   void		setHover();
+  void		setOwner(Player*);
+  Player	*getOwner();
 private:
   int		_id;
   t_position	_position;
   Field		*_field;
   Engine	*_engine;
   bool		_hover;
-  sf::Sprite	*_pict;
-  sf::Sprite	*_hoverPict;
+  Player	*_owner;
 };
 
 #endif
