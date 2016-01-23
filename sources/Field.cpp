@@ -1,5 +1,6 @@
 #include "Field.hh"
 #include "Engine.hh"
+#include <iostream>
 
 Field::Field(Engine *e) : _engine(e), _sizeInter(50)
 {
@@ -18,6 +19,14 @@ Field::~Field()
   for (int i = 0; i < 361; i++){
     delete (_field[i]);
   }
+}
+
+void		Field::reset(){
+  for (int i = 0; i < 361; i++){
+    delete (_field[i]);
+    _field[i] = new Intersection(i, this, _engine);
+  }
+  _lastInter = 0;
 }
 
 void		Field::setMouse(t_position pos){
@@ -51,7 +60,7 @@ void		Field::hover(int id){
 }
 
 void		Field::hover(Intersection *i){
-  if (!i)
+  if (!i || i->getOwner())
     return;
   t_position pos = i->getPosition();
   _hover->setPosition(pos.x, pos.y);

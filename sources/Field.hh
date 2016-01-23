@@ -27,6 +27,7 @@ public:
   void		draw();
   Engine	*getEngine();
   Arbitrator	*getArbitrator();
+  void		reset();
 
 private:
   Intersection	*_field[361];

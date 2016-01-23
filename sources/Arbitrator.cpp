@@ -145,10 +145,10 @@ void		Arbitrator::initKillPatern(){
 }
 
 void		Arbitrator::initBlockPatern(){
-  Patern	p(2);
-  p.addCase(2, 0, 2);
-  p.addCase(1, 1, 2);
-  p.addCase(1, -1, 2);
+  Patern	p(1);
+  p.addCase(2, 0, 1);
+  p.addCase(1, 1, 1);
+  p.addCase(1, -1, 1);
   p.addCase(1, 0, 3);
   _blockPatern.push_back(p);
 }
