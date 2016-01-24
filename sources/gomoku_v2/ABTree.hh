@@ -33,7 +33,6 @@ private:
   bool		_isMax;
   int		_depth;
   int		_score;
-  std::vector<ABTree*>	_children;
   ABTree	*_child;
 };
 

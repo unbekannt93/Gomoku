@@ -113,12 +113,27 @@ unsigned int	Patern::matchMax(Field *f, pawn *board, t_position pos, pawn p, int
       comparator = p;
     else
       comparator = *ptmp;
-    if (!matchInter(_patern[i], p, comparator))
-      return (MAX(i, matchMax(f, board, pos, p, position+1)));
+    if (!matchInter(_patern[i], p, comparator)){
+      if ((comparator & gl_player_part) == gl_empty){
+	return (MAX(i , matchMax(f, board, pos, p, position+1)));
+      }
+      else{
+	return (MAX(0 , matchMax(f, board, pos, p, position+1)));
+      }
+    }
   }
   return (_patern.size());
 }
 
 unsigned int	Patern::matchPercent(Field *f, pawn *board, t_position pos, pawn p){
   return (PERCENT(matchMax(f, board, pos, p), _patern.size()));
+}
+
+bool		Patern::getPositionById(t_position *ptr, t_position pos,
+					unsigned int idPos, unsigned int id){
+  if (idPos >= _patern.size() || id >= _patern.size())
+    return (false);
+  t_position	calc = subPosition(_patern[idPos].pos, _patern[id].pos);
+  *ptr = addPosition(calc, pos);
+  return (true);
 }

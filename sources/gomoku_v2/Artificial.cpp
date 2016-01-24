@@ -30,7 +30,7 @@ void			Artificial::think(){
   delete(_tree);
   _tree = 0;
   t_position position = _field->getPosition(id);
-  _field->setPawn(position, _owner);
+  _field->setPawn(position, this);
   if (_field->getArbitrator()->playerWin(this, position))
     _brain = Player::WIN;
   else

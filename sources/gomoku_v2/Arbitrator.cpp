@@ -46,31 +46,28 @@ void		Arbitrator::setRule(int i, bool b){
   _rules[i] = b;
 }
 
-bool		Arbitrator::threeOk(Player *p, t_position pos){
-  if (!p)
-    return (false);
+bool		Arbitrator::threeOk(pawn p, t_position pos){
   unsigned int n = 0;
   for (unsigned int i = 0; i < _threePatern.size(); i++){
-    if (_threePatern[i].match(_field, pos, p->getPawnPlayer()))
+    if (_threePatern[i].match(_field, pos, p))
       n++;
   }
   return (n <= 1);  
 }
 
-bool		Arbitrator::blockOk(Player *p, t_position pos){
+bool		Arbitrator::blockOk(pawn p, t_position pos){
   pawn		*left = _field->getInter(pos.x - 50, pos.y);
   pawn		*right = _field->getInter(pos.x + 50, pos.y);
   pawn		*up = _field->getInter(pos.x, pos.y - 50);
   pawn		*down = _field->getInter(pos.x, pos.y + 50);
-  pawn		owner = p->getPawnPlayer();
 
-  return (!(left && PAWN((*left), owner) &&
-	  right && PAWN((*right), owner) &&
-	  up && PAWN((*up), owner) &&
-	    down && PAWN((*down), owner)));
+  return (!(left && PAWN((*left), p) &&
+	    right && PAWN((*right), p) &&
+	    up && PAWN((*up), p) &&
+	    down && PAWN((*down), p)));
 }
 
-bool		Arbitrator::canPlace(Player *p, t_position pos){
+bool		Arbitrator::canPlace(pawn p, t_position pos){
   return ((!_rules[Arbitrator::THREE] || threeOk(p, pos)) &&
 	  (!_rules[Arbitrator::BLOCK] || blockOk(p, pos)));
 	  
@@ -83,33 +80,46 @@ bool		Arbitrator::playerWin(Player *p){
 }
 
 bool		Arbitrator::playerWin(Player *player, t_position pos){
-  Patern	*patern = winInter(&pos);
+  unsigned int	n;
+  Patern	*patern = winInter(&pos, &n);
   return ((_rules[Arbitrator::STONES] && player->getStoneKilled() >= 10) ||
-	  (_rules[Arbitrator::FIVE] && dontBreak(patern, pos)) ||
+	  (patern && _rules[Arbitrator::FIVE] && dontBreak(patern, pos, n)) ||
 	  (!_rules[Arbitrator::FIVE] && patern));
 }
 
-bool		Arbitrator::dontBreak(Patern *p, t_position pos){
-  pawn		*pa = _field->getInter(pos);
-  if (!p || !pa || !_field->legalArgument(pos))
-    return (false);
+bool		Arbitrator::tryBreak(t_position pos, pawn pa){
   for (unsigned int i = 0; i < _breakPatern.size(); i++){
-    if (_breakPatern[i].match(_field, pos, *pa)){
-      std::cout << "Trouvé !" << std::endl;
+    if (_breakPatern[i].match(_field, pos, pa)){
       return (true);
     }
   }
   return (false);
 }
 
-Patern		*Arbitrator::winInter(t_position *inter){
+bool		Arbitrator::dontBreak(Patern *p, t_position pos, unsigned int posInter){
+  (void)posInter;
+  pawn		*pa = _field->getInter(pos);
+  if (!p || !pa || !_field->legalArgument(pos)){
+    return (true);
+  }
+  t_position tmp;
+  unsigned int i = 0;
+  while (p->getPositionById(&tmp, pos, posInter, i)){
+    if (tryBreak(tmp, *pa))
+      return (false);
+    i++;
+  }
+  return (true);
+}
+
+Patern		*Arbitrator::winInter(t_position *inter, unsigned int *ptr){
   if (!inter)
     return (0);
   pawn *owner = _field->getInter(*inter);
   if (!owner)
     return (0);
   for (unsigned int i = 0; i < _winPatern.size(); i++){
-    if (_winPatern[i].match(_field, _field->getPosition(_field->getId(*inter)), *owner))
+    if (_winPatern[i].match(_field, _field->getPosition(_field->getId(*inter)), *owner, 0, ptr))
       return (&_winPatern[i]);
   }
   return (0);
@@ -317,41 +327,49 @@ void		Arbitrator::initBreakFivePatern(){
   Patern	p(3);
 
   p.addCase(1, 0, 0);
-  p.addCase(2, 0, 1);
+  p.addCase(2, 0, 0);
+  p.addCase(3, 0, 1);
   _breakPatern.push_back(p);
 
-  p = Patern(0);
-  p.addCase(1, 0, 3);
-  p.addCase(2, 0, 1);
+  p = Patern(1);
+  p.addCase(1, 0, 0);
+  p.addCase(2, 0, 0);
+  p.addCase(3, 0, 3);
   _breakPatern.push_back(p);
 
   p = Patern(3);
   p.addCase(1, 1, 0);
-  p.addCase(2, 2, 1);
+  p.addCase(2, 2, 0);
+  p.addCase(3, 3, 1);
   _breakPatern.push_back(p);
 
-  p = Patern(0);
-  p.addCase(1, 1, 3);
-  p.addCase(2, 2, 1);
+  p = Patern(1);
+  p.addCase(1, 1, 0);
+  p.addCase(2, 2, 0);
+  p.addCase(3, 3, 3);
   _breakPatern.push_back(p);
 
   p = Patern(3);
   p.addCase(0, 1, 0);
-  p.addCase(0, 2, 1);
+  p.addCase(0, 2, 0);
+  p.addCase(0, 3, 1);
   _breakPatern.push_back(p);
 
-  p = Patern(0);
-  p.addCase(0, 1, 3);
-  p.addCase(0, 2, 1);
+  p = Patern(1);
+  p.addCase(0, 1, 0);
+  p.addCase(0, 2, 0);
+  p.addCase(0, 3, 3);
   _breakPatern.push_back(p);
 
   p = Patern(3);
   p.addCase(1, -1, 0);
-  p.addCase(2, -2, 1);
+  p.addCase(2, -2, 0);
+  p.addCase(3, -3, 1);
   _breakPatern.push_back(p);
 
-  p = Patern(0);
-  p.addCase(1, -1, 3);
-  p.addCase(2, -2, 1);
+  p = Patern(1);
+  p.addCase(1, -1, 0);
+  p.addCase(2, -2, 0);
+  p.addCase(3, -3, 3);
   _breakPatern.push_back(p);
 }

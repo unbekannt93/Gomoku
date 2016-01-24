@@ -21,12 +21,13 @@ const int		gl_infini = 1000000000;
 
 #define			BIT(a, b) (((a&b) == b)?true:false)
 #define			PAWN(a, b) (((a&3) == (b&3)) ?true:false)
-#define			MAX(a, b) ((a > b)?a:b)
+#define			MAX(a, b) ((a >= b)?a:b)
 #define			PERCENT(a, b) (a*100/b)
-#define			OPLAYER(a) ((a == gl_player_1)?gl_player_2:gl_player_1)
+#define			OPLAYER(a) (((a & gl_player_part) == gl_player_1)?gl_player_2:gl_player_1)
 
 #define			DEPTHINTEREST(a) ((a > 0 && a < 6)?(gl_interest<<a):0)
 
 #define			BOOLTOINT(a) ((a == true)?0:1)
 
+#define			IFIIS(a, b) (((b & gl_player_part) == gl_empty)?a:0)
 #endif

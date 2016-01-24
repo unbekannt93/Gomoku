@@ -36,6 +36,8 @@ public:
   pawn		*getPawnInBoard(Field*, pawn*, t_position);
   unsigned int	matchPercent(Field*, pawn*, t_position, pawn);
   unsigned int	matchMax(Field*, pawn*, t_position, pawn, int = 0);
+
+  bool		getPositionById(t_position*, t_position, unsigned int, unsigned int);
 private:
   std::vector<PaternCase>	_patern;
 };

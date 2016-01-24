@@ -25,10 +25,10 @@ public:
 public:
   Arbitrator(Field*);
   ~Arbitrator();
-  bool		canPlace(Player*, t_position);
+  bool		canPlace(pawn, t_position);
   bool		playerWin(Player*);
 
-  Patern	*winInter(t_position*);
+  Patern	*winInter(t_position*, unsigned int *p = 0);
 
   Patern	*killInter(t_position*);
   Patern	*getKillInter(unsigned int);
@@ -40,14 +40,15 @@ public:
   void		initThreePatern();
   void		initBreakFivePatern();
 
-  bool		dontBreak(Patern*, t_position);
+  bool		dontBreak(Patern*, t_position, unsigned int);
+  bool		tryBreak(t_position, pawn);
 
   t_position	*getInterPos(Field*, t_position*, int, int);
 
   pawn		*getInterPawn(Field*, Patern*, t_position, unsigned int, unsigned int);
 
-  bool		threeOk(Player*, t_position);
-  bool		blockOk(Player*, t_position);
+  bool		threeOk(pawn, t_position);
+  bool		blockOk(pawn, t_position);
 
   bool		playerWin(Player*, t_position);
 

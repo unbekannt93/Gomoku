@@ -18,13 +18,13 @@ ABTree::ABTree(Field *f, pawn p, bool isMax, int d) : _field(f), _parent(0),
 						      _isMax(isMax), _depth(d),
 						      _score(0), _child(0)
 {
-  
+
 }
 
 ABTree::~ABTree()
 {
-  for (unsigned int i = 0; i < _children.size(); i++)
-    delete (_children[i]);
+  if (_child)
+    delete (_child);
 }
 
 bool	ABTree::myInterest(pawn i){
@@ -35,32 +35,46 @@ int	ABTree::buildTree(){
   pawn		*inter;
   ABTree	*newTree;
   int		n;
+  bool		canPlace;
 
+  pawn		me = gl_player_1;
+  if (PAWN(_player, gl_player_1))
+    me = gl_player_2;
   setHexaInterest(_player);
   if (_depth <= 0){
     setHexaInterest(gl_empty, false);
     return (getScore());
   }
-  _children.clear();
 
   for (unsigned int i = 0; i < 361; i++){
     inter = _field->getInter(i);
     if (inter && myInterest((*inter) & gl_interest_part) && PAWN((*inter), gl_empty)){
-      newTree = new ABTree(_field, this, i,OPLAYER(((*inter) & gl_player_part)),
+      newTree = new ABTree(_field, this, i, me,
 			   _min, _max, !_isMax, _depth-1);
       n = newTree->buildTree();
-      if (_isMax && _min < n){
+      canPlace = _field->getArbitrator()->canPlace(_player, _field->getPosition(i));
+      if (_isMax && n > _min && canPlace){
 	_min = n;
+	if (_child)
+	  delete (_child);
 	_child = newTree;
-      }else if (!_isMax && _max > n){
+      }else if (!_isMax && n < _max && canPlace){
 	_max = n;
+	if (_child)
+	  delete (_child);
 	_child = newTree;
+      }else{
+	if (_child)
+	  delete (_child);
+	_child = newTree;
+	setHexaInterest(gl_empty, false);
+	if (_isMax)
+	  return (_min);
+	return (_max);
       }
-      _children.push_back(newTree);
     }
   }
   setHexaInterest(gl_empty, false);
-  //std::cout << "+ " << _children.size() << std::endl;
   if (_isMax)
     return (_min);
   return (_max);
@@ -70,9 +84,7 @@ void	ABTree::setHexaInterest(pawn p, bool set){
   pawn *board = _field->getBoard(false);
   if (!board || _id < 0 || _id > 361)
     return;
-  board[_id] = (board[_id] & gl_interest_part) + p;
-  (void)set;
-  
+  board[_id] = (board[_id] & gl_interest_part) + p;  
   setInterest(_id - 1, set);
   setInterest(_id + 1, set);
   setInterest(_id - 18, set);
@@ -107,7 +119,7 @@ int	ABTree::getScore(){
   pawn		*board = _field->getBoard(false);
 
   while ((p = a->getWinInter(i))){
-    n = MAX(n, (p->matchPercent(_field, board, _position, _player) * 1));
+    n = MAX(n, (p->matchPercent(_field, board, _position, _player) * 5));
     i++;
   }
   if (n == 100)
