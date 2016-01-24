@@ -1,9 +1,9 @@
-NAME	=	bin
+NAME	=	gomoku
 
 CC	=	g++
 
-SRC	=	AITree.cpp \
-		ABTree.cpp \
+SRC	=	ABTree.cpp \
+		RuleMenu.cpp \
 		Engine.cpp \
 		main.cpp \
 		Module.cpp \

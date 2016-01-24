@@ -21,8 +21,10 @@ void			Humain::action(t_position position){
   if (!_field->legalArgument(position) || !p || !PAWN((*p), 0) ||
       !_field->getArbitrator()->canPlace(this, position))
     return;
-  _field->setPawn(position, _owner);
 
+  //_field->setPawn(position, _owner);
+  _field->setPawn(position, this);
+  /*
   unsigned int		n;
 
   Patern *pat = 0;
@@ -40,7 +42,9 @@ void			Humain::action(t_position position){
     }
     i++;
   }
-  if (_field->getArbitrator()->playerWin(this, position))
+  */
+
+  if (_field->getArbitrator()->playerWin(this, position) || _stoneKilled >= 10)
     _brain = Player::WIN;
   else
     _brain = Player::FINISHED;

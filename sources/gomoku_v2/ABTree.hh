@@ -5,6 +5,7 @@
 #include <vector>
 #include "Click.hh"
 #include "Gomoku.hh"
+#include "Patern.hh"
 
 class Field;
 
@@ -19,6 +20,8 @@ public:
   void	setInterest(int, bool);
   bool	myInterest(pawn);
   int	getScore();
+  int	getIdChild() const;
+  int	getId() const;
 private:
   Field		*_field;
   ABTree	*_parent;
@@ -31,6 +34,7 @@ private:
   int		_depth;
   int		_score;
   std::vector<ABTree*>	_children;
+  ABTree	*_child;
 };
 
 #endif

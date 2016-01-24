@@ -22,6 +22,8 @@ RPack::RPack(sf::RenderWindow *r) : _render(r)
   _textures[7].loadFromFile("Sources/playerTwo.png");
   _textures.push_back(sf::Texture());
   _textures[8].loadFromFile("Sources/monster.png");
+  _textures.push_back(sf::Texture());
+  _textures[9].loadFromFile("Sources/tools.png");
 }
 
 RPack::~RPack()

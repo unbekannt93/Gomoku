@@ -4,9 +4,9 @@
 #include "Intersection.hh"
 
 Player::Player(Field *f, sf::Sprite *pawn_s, pawn p) : _field(f), _pawn(pawn_s), _brain(Player::SLEEP),
-					     _stoneKilled(0), _owner(p)
+						       _stoneKilled(0), _owner(p), _lastPawn(-1)
 {
-
+  
 }
 
 Player::~Player()
@@ -51,4 +51,16 @@ pawn			Player::getPawnPlayer() const{
 
 int			Player::getStoneKilled() const{
   return (_stoneKilled);
+}
+
+void			Player::addStone(int s){
+  _stoneKilled += s;
+}
+
+int			Player::getLastPawn() const{
+  return (_lastPawn);
+}
+
+void			Player::setLastPawn(int p){
+  _lastPawn = p;
 }

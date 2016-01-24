@@ -4,15 +4,15 @@
 #include "Intersection.hh"
 #include "Patern.hh"
 
-Arbitrator::Arbitrator(Field *f) : _field(f)
+Arbitrator::Arbitrator(Field *f) : _field(f), _levelAI(3)
 {
   initWinPatern();
   initKillPatern();
-  initBlockPatern();
+  initBreakFivePatern();
   initThreePatern();
 
   _rules[0] = true;
-  _rules[1] = false;
+  _rules[1] = true;
   _rules[2] = true;
   _rules[3] = true;
 }
@@ -20,6 +20,30 @@ Arbitrator::Arbitrator(Field *f) : _field(f)
 Arbitrator::~Arbitrator()
 {
 
+}
+
+int		Arbitrator::getLevelAI() const{
+  return (_levelAI);
+}
+
+void		Arbitrator::setLevelAI(int level){
+  _levelAI = level;
+  if (_levelAI < 1)
+    _levelAI = 1;
+  else if (_levelAI > 5)
+    _levelAI = 5;
+}
+
+bool		Arbitrator::getRule(int i){
+  if (i < 0 || i > 4)
+    return (false);
+  return (_rules[i]);
+}
+
+void		Arbitrator::setRule(int i, bool b){
+  if (i < 0 || i > 4)
+    return;
+  _rules[i] = b;
 }
 
 bool		Arbitrator::threeOk(Player *p, t_position pos){
@@ -34,9 +58,16 @@ bool		Arbitrator::threeOk(Player *p, t_position pos){
 }
 
 bool		Arbitrator::blockOk(Player *p, t_position pos){
-  (void)p;
-  (void)pos;
-  return (true);
+  pawn		*left = _field->getInter(pos.x - 50, pos.y);
+  pawn		*right = _field->getInter(pos.x + 50, pos.y);
+  pawn		*up = _field->getInter(pos.x, pos.y - 50);
+  pawn		*down = _field->getInter(pos.x, pos.y + 50);
+  pawn		owner = p->getPawnPlayer();
+
+  return (!(left && PAWN((*left), owner) &&
+	  right && PAWN((*right), owner) &&
+	  up && PAWN((*up), owner) &&
+	    down && PAWN((*down), owner)));
 }
 
 bool		Arbitrator::canPlace(Player *p, t_position pos){
@@ -46,15 +77,29 @@ bool		Arbitrator::canPlace(Player *p, t_position pos){
 }
 
 bool		Arbitrator::playerWin(Player *p){
-  if (!p)
+  if (!p || !_field->legalArgument(p->getLastPawn()))
     return (false);
-
-  return (false);
+  return (playerWin(p, _field->getPosition(p->getLastPawn())));
 }
 
 bool		Arbitrator::playerWin(Player *player, t_position pos){
+  Patern	*patern = winInter(&pos);
   return ((_rules[Arbitrator::STONES] && player->getStoneKilled() >= 10) ||
-	  winInter(&pos));
+	  (_rules[Arbitrator::FIVE] && dontBreak(patern, pos)) ||
+	  (!_rules[Arbitrator::FIVE] && patern));
+}
+
+bool		Arbitrator::dontBreak(Patern *p, t_position pos){
+  pawn		*pa = _field->getInter(pos);
+  if (!p || !pa || !_field->legalArgument(pos))
+    return (false);
+  for (unsigned int i = 0; i < _breakPatern.size(); i++){
+    if (_breakPatern[i].match(_field, pos, *pa)){
+      std::cout << "Trouvé !" << std::endl;
+      return (true);
+    }
+  }
+  return (false);
 }
 
 Patern		*Arbitrator::winInter(t_position *inter){
@@ -173,93 +218,140 @@ void		Arbitrator::initKillPatern(){
   _killPatern.push_back(p);
 }
 
-void		Arbitrator::initBlockPatern(){
-  Patern	p(1);
-  p.addCase(2, 0, 1);
-  p.addCase(1, 1, 1);
-  p.addCase(1, -1, 1);
-  p.addCase(1, 0, 3);
-  _blockPatern.push_back(p);
-}
-
 void		Arbitrator::initThreePatern(){
-  Patern	p(0);
+  Patern	p(3);
 
-  p.addCase(1, 0, 3);
-  p.addCase(2, 0, 0);
-  p.addCase(3, 0, 0);
-  _threePatern.push_back(p);
-
-  p = Patern(0);
   p.addCase(1, 0, 0);
   p.addCase(2, 0, 3);
   p.addCase(3, 0, 0);
+  p.addCase(4, 0, 0);
+  p.addCase(5, 0, 3);
   _threePatern.push_back(p);
 
-  p = Patern(0);
+  p = Patern(3);
+  p.addCase(1, 0, 0);
+  p.addCase(2, 0, 0);
+  p.addCase(3, 0, 3);
+  p.addCase(4, 0, 0);
+  p.addCase(5, 0, 3);
+  _threePatern.push_back(p);
+
+  p = Patern(3);
+  p.addCase(0, 1, 0);
+  p.addCase(0, 2, 0);
+  p.addCase(0, 3, 3);
+  p.addCase(0, 4, 0);
+  p.addCase(0, 5, 3);
+  _threePatern.push_back(p);
+
+  p = Patern(3);
   p.addCase(0, 1, 0);
   p.addCase(0, 2, 3);
   p.addCase(0, 3, 0);
+  p.addCase(0, 4, 0);
+  p.addCase(0, 5, 3);
   _threePatern.push_back(p);
 
-  p = Patern(0);
-  p.addCase(0, 1, 3);
-  p.addCase(0, 2, 0);
-  p.addCase(0, 3, 0);
-  _threePatern.push_back(p);
-
-  p = Patern(0);
-  p.addCase(1, 1, 3);
-  p.addCase(2, 2, 0);
-  p.addCase(3, 3, 0);
-  _threePatern.push_back(p);
-
-  p = Patern(0);
+  p = Patern(3);
   p.addCase(1, 1, 0);
   p.addCase(2, 2, 3);
   p.addCase(3, 3, 0);
+  p.addCase(4, 4, 0);
+  p.addCase(5, 5, 3);
   _threePatern.push_back(p);
 
-  p = Patern(0);
-  p.addCase(1, -1, 3);
-  p.addCase(2, -2, 0);
-  p.addCase(3, -3, 0);
+  p = Patern(3);
+  p.addCase(1, 1, 0);
+  p.addCase(2, 2, 0);
+  p.addCase(3, 3, 3);
+  p.addCase(4, 4, 0);
+  p.addCase(5, 5, 3);
   _threePatern.push_back(p);
 
-  p = Patern(0);
+  p = Patern(3);
   p.addCase(1, -1, 0);
   p.addCase(2, -2, 3);
   p.addCase(3, -3, 0);
+  p.addCase(4, -4, 0);
+  p.addCase(5, -5, 3);
   _threePatern.push_back(p);
 
-  p = Patern(0);
+  p = Patern(3);
   p.addCase(1, -1, 0);
   p.addCase(2, -2, 0);
+  p.addCase(3, -3, 3);
+  p.addCase(4, -4, 0);
+  p.addCase(5, -5, 3);
   _threePatern.push_back(p);
 
-  p = Patern(0);
+  p = Patern(3);
+  p.addCase(1, -1, 0);
+  p.addCase(2, -2, 0);
+  p.addCase(3, -3, 0);
+  p.addCase(4, -4, 3);
+  _threePatern.push_back(p);
+
+  p = Patern(3);
   p.addCase(1, 1, 0);
   p.addCase(2, 2, 0);
+  p.addCase(3, 3, 0);
+  p.addCase(4, 4, 3);
   _threePatern.push_back(p);
 
-  p = Patern(0);
+  p = Patern(3);
   p.addCase(1, 0, 0);
   p.addCase(2, 0, 0);
+  p.addCase(3, 0, 0);
+  p.addCase(4, 0, 3);
   _threePatern.push_back(p);
 
-  p = Patern(0);
+  p = Patern(3);
   p.addCase(0, 1, 0);
   p.addCase(0, 2, 0);
+  p.addCase(0, 3, 0);
+  p.addCase(0, 4, 3);
   _threePatern.push_back(p);
 }
 
-/*
 void		Arbitrator::initBreakFivePatern(){
-  Patern	p(1);
+  Patern	p(3);
 
   p.addCase(1, 0, 0);
-  p.addCase(2, 0, 0);
-  p.addCase(3, 0, 1);
-  _blockPatern.push_back(p);
+  p.addCase(2, 0, 1);
+  _breakPatern.push_back(p);
+
+  p = Patern(0);
+  p.addCase(1, 0, 3);
+  p.addCase(2, 0, 1);
+  _breakPatern.push_back(p);
+
+  p = Patern(3);
+  p.addCase(1, 1, 0);
+  p.addCase(2, 2, 1);
+  _breakPatern.push_back(p);
+
+  p = Patern(0);
+  p.addCase(1, 1, 3);
+  p.addCase(2, 2, 1);
+  _breakPatern.push_back(p);
+
+  p = Patern(3);
+  p.addCase(0, 1, 0);
+  p.addCase(0, 2, 1);
+  _breakPatern.push_back(p);
+
+  p = Patern(0);
+  p.addCase(0, 1, 3);
+  p.addCase(0, 2, 1);
+  _breakPatern.push_back(p);
+
+  p = Patern(3);
+  p.addCase(1, -1, 0);
+  p.addCase(2, -2, 1);
+  _breakPatern.push_back(p);
+
+  p = Patern(0);
+  p.addCase(1, -1, 3);
+  p.addCase(2, -2, 1);
+  _breakPatern.push_back(p);
 }
-*/

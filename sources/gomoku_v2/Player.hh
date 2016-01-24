@@ -32,12 +32,16 @@ public:
   void		hover(t_position);
   pawn		getPawnPlayer() const;
   int		getStoneKilled() const;
+  void		addStone(int = 2);
+  int		getLastPawn() const;
+  void		setLastPawn(int);
 protected:
   Field		*_field;
   sf::Sprite	*_pawn;
   Brain		_brain;
   int		_stoneKilled;
   pawn		_owner;
+  int		_lastPawn;
 };
 
 #endif

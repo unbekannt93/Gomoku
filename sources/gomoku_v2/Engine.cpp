@@ -4,7 +4,7 @@
 Engine::Engine() : _render(sf::VideoMode(950, 950), "Gomoku"),
 		   _res(&_render),
 		   _cModule(0), _th(&Engine::updater, this),
-		   _useScreen(false)
+		   _useScreen(false), _idParam(0)
 {
   sf::Vector2u	size = _render.getSize();
   if (_useScreen)
@@ -21,6 +21,14 @@ Engine::~Engine()
 
   for (std::size_t i = 0; i < 1; i++)
     delete (_modules[i]);
+}
+
+sf::Uint16		Engine::getParams() const{
+  return (_idParam);
+}
+
+void			Engine::setParams(sf::Uint16 param){
+  _idParam = param;
 }
 
 void			Engine::start()
@@ -40,10 +48,9 @@ void			Engine::start()
 	      else
 		_modules[_cModule]->setPosition(_event.mouseMove.x, _event.mouseMove.y);
 	    }
-	  else if (_event.type == sf::Event::KeyPressed)
+	  else if (_event.type == sf::Event::KeyPressed && _event.key.code == sf::Keyboard::Escape)
 	    {
-	      if (_event.key.code == sf::Keyboard::Escape)
-		_render.close();
+	      _render.close();
 	    }
 	  else if (_event.type == sf::Event::Resized && _useScreen)
 	    _screen.resizeView(_event.size.width, _event.size.height, &_render);

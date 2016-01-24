@@ -23,8 +23,10 @@ void		MainMenu::eventModule()
 {
   if (_engine->getEvent()->type == sf::Event::MouseButtonPressed){
     if (_one.tryClick(_position)){
-      // IA
+      _engine->setParams(0);
+      _engine->setModule(1);
     }else if (_two.tryClick(_position)){
+      _engine->setParams(1);
       _engine->setModule(1);
     }
   }

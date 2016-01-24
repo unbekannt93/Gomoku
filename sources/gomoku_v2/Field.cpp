@@ -1,8 +1,9 @@
 #include "Field.hh"
 #include "Engine.hh"
 #include <iostream>
+#include "Patern.hh"
 
-Field::Field(Engine *e) : _engine(e), _sizeInter(50)
+Field::Field(Engine *e) : _engine(e), _sizeInter(50), _drawMonster(false)
 {
   _arbitrator = new Arbitrator(this);
   for (int i = 0; i < 361; i++){
@@ -34,6 +35,34 @@ void		Field::reset(){
 
 void		Field::setCase(pawn *src, pawn dest){
   *src = ((*src) & gl_interest) + (dest & gl_player_part);
+}
+
+bool		Field::setPawn(t_position position, Player *player){
+  position = getPosition(getId(position));
+
+  if (!setPawn(position, player->getPawnPlayer()))
+    return (false);
+  player->setLastPawn(getId(position));
+  pawn		*p = getInter(position);
+  unsigned int	n;
+  Patern	*pat = 0;
+  unsigned int	i = 0;
+
+  while ((pat = _arbitrator->getKillInter(i))){
+    while (pat->match(this, position, *p, 0, &n)){
+      p = _arbitrator->getInterPawn(this, pat, position, n, 1);
+      if (p)
+	*p = gl_empty;
+      p = _arbitrator->getInterPawn(this, pat, position, n, 2);
+      if (p)
+	*p = gl_empty;
+      player->addStone();
+      p = getInter(position);
+    }
+    i++;
+  }
+
+  return (true);
 }
 
 bool		Field::setPawn(t_position pos, pawn owner){
@@ -85,6 +114,10 @@ pawn		*Field::getInter(int id){
   if (id < 0 || id > 360)
     return (0);
   return (&_field[id]);
+}
+
+pawn		*Field::getInter(int x, int y){
+  return (getInter((x / _sizeInter) % 19 + (y / _sizeInter) * 19));
 }
 
 bool		Field::hover(int id){
@@ -142,12 +175,16 @@ void		Field::drawPawn(pawn i, t_position pos){
   else if (PAWN(i, gl_player_2))
     n = 1;
   else{
-    if ((i & gl_interest_part) != gl_empty && PAWN(i, gl_empty))
+    if ((i & gl_interest_part) != gl_empty && PAWN(i, gl_empty) && _drawMonster)
       drawMonster(pos);
     return;
   }
   _pawns[n]->setPosition(pos.x, pos.y);
   _engine->getRender()->draw(*_pawns[n]);
+}
+
+void		Field::changeMonster(){
+  _drawMonster = !_drawMonster;
 }
 
 Engine		*Field::getEngine(){

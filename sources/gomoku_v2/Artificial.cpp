@@ -1,6 +1,5 @@
 #include "Artificial.hh"
 #include "Field.hh"
-#include "AITree.hh"
 #include "ABTree.hh"
 
 Artificial::Artificial(Field *f, sf::Sprite *s, pawn p,
@@ -25,12 +24,15 @@ void			Artificial::turnBegin(){
 }
 
 void			Artificial::think(){
-  //std::cout << "ENTER" << std::endl;
-  //_tree = new AITree(_field, _owner, _field->getBoard(), _depth);
-  _tree = new ABTree(_field, _owner);
+  _tree = new ABTree(_field, _owner, true, _field->getArbitrator()->getLevelAI());
   _tree->buildTree();
-  //delete(_tree);
+  int id = _tree->getIdChild();
+  delete(_tree);
   _tree = 0;
-  //std::cout << "DONE" << std::endl;
-  _brain = Player::FINISHED;
+  t_position position = _field->getPosition(id);
+  _field->setPawn(position, _owner);
+  if (_field->getArbitrator()->playerWin(this, position))
+    _brain = Player::WIN;
+  else
+    _brain = Player::FINISHED;
 }

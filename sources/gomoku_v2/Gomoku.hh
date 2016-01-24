@@ -27,4 +27,6 @@ const int		gl_infini = 1000000000;
 
 #define			DEPTHINTEREST(a) ((a > 0 && a < 6)?(gl_interest<<a):0)
 
+#define			BOOLTOINT(a) ((a == true)?0:1)
+
 #endif

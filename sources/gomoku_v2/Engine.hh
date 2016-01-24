@@ -20,6 +20,8 @@ public:
   sf::RenderWindow	*getRender();
   sf::Event		*getEvent();
   RPack			*getPack();
+  sf::Uint16		getParams() const;
+  void			setParams(sf::Uint16);
 private:
   sf::RenderWindow	_render;
   sf::Event		_event;
@@ -29,6 +31,7 @@ private:
   sf::Thread		_th;
   Screen		_screen;
   bool			_useScreen;
+  sf::Uint16		_idParam;
 };
 
 #endif

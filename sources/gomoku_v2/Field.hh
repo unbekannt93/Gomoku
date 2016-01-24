@@ -19,6 +19,7 @@ public:
   pawn		*getInter();
   pawn		*getInter(t_position);
   pawn		*getInter(int);
+  pawn		*getInter(int, int);
   bool		hover(t_position);
   bool		hover(int);
   bool		put(t_position);
@@ -32,6 +33,7 @@ public:
   t_position	getPosition(int) const;
   void		drawPawn(pawn, t_position);
   bool		setPawn(t_position, pawn);
+  bool		setPawn(t_position, Player*);
   t_position	*getCopyPosition(t_position);
   void		setCase(pawn*, pawn);
   void		drawMonster(t_position);
@@ -39,6 +41,7 @@ public:
   void		setHexaInterest(t_position);
   void		setInterest(t_position);
   pawn		*getBoard(bool = true);
+  void		changeMonster();
 private:
   pawn		_field[361];
   sf::Sprite	*_backGround;
@@ -50,6 +53,7 @@ private:
   Arbitrator	*_arbitrator;
   int		_sizeInter;
   sf::Sprite	*_pawns[2];
+  bool		_drawMonster;
 };
 
 #endif
